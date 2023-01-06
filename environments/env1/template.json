@@ -1,0 +1,180 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "topics_eventGrid_name": {
+            "defaultValue": "BPA-eventGrid",
+            "type": "String"
+        },
+        "searchServices_acs_name": {
+            "defaultValue": "bpa-acs",
+            "type": "String"
+        },
+         "storageAccountName": {
+            "type": "string",
+            "defaultValue": "[format('sa{0}', substring(guid(resourceGroup().id), 0, 6))]",
+            "metadata": {
+                "description": "Specifies the name of the Azure Storage account."
+            }
+        },
+         "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Specifies the location in which the Azure Storage resources should be deployed."
+            }
+        },
+        "containerName": {
+            "type": "string",
+            "defaultValue": "bpa-assets",
+            "metadata": {
+                "description": "Specifies the name of the blob container."
+            }
+        },
+         "identityName": {
+            "defaultValue": "PostDeploymentScriptuserAssignedName",
+            "type": "String",
+            "metadata": {
+                "description": "Name of identity"
+            }
+        },
+        "uniqueSuffix": {
+          "defaultValue": "[substring(uniqueString(resourceGroup().id), 0, 6)]",
+          "type": "String",
+          "metadata": {
+              "description": "Unique Suffix"
+          }
+      },
+        "firstuniquestring": {
+          "defaultValue": "[format('firstunique{0}', parameters('uniqueSuffix'))]",
+          "type": "String",
+          "metadata": {
+              "description": "firstuniquestring"
+          }
+      },
+      "seconduniquestring": {
+          "defaultValue": "[format('secondunique{0}', parameters('uniqueSuffix'))]",
+          "type": "String",
+          "metadata": {
+              "description": "seconduniquestring"
+          }
+      }
+    },
+    "variables": {
+    "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c",
+    "bootstrapRoleAssignmentId": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.EventGrid/topics",
+            "apiVersion": "2022-06-15",
+            "name": "[parameters('topics_eventGrid_name')]",
+            "location": "centralus",
+            "identity": {
+                "type": "None"
+            },
+            "properties": {
+                "inputSchema": "EventGridSchema",
+                "publicNetworkAccess": "Enabled",
+                "inboundIpRules": [],
+                "disableLocalAuth": false,
+                "dataResidencyBoundary": "WithinGeopair"
+            }
+        },
+        // {
+        //     "type": "Microsoft.Search/searchServices",
+        //     "apiVersion": "2021-04-01-preview",
+        //     "name": "[parameters('searchServices_acs_name')]",
+        //     "location": "West US 2",
+        //     "sku": {
+        //         "name": "free"
+        //     },
+        //     "properties": {
+        //         "replicaCount": 1,
+        //         "partitionCount": 1,
+        //         "hostingMode": "Default",
+        //         "publicNetworkAccess": "Enabled",
+        //         "networkRuleSet": {
+        //             "ipRules": [],
+        //             "bypass": "None"
+        //         },
+        //         "encryptionWithCmk": {
+        //             "enforcement": "Unspecified"
+        //         },
+        //         "disableLocalAuth": false,
+        //         "authOptions": {
+        //             "apiKeyOnly": {}
+        //         },
+        //         "disabledDataExfiltrationOptions": [],
+        //         "semanticSearch": "disabled"
+        //     }
+        // },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2022-05-01",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "accessTier": "Hot",
+                "isHnsEnabled": true,
+                "allowBlobPublicAccess": true
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2022-05-01",
+            "name": "[format('{0}/default/{1}', parameters('storageAccountName'), parameters('containerName'))]",
+            "dependsOn": [ "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]" ],
+            "properties": {
+                "publicAccess": "Container"
+            }
+        },
+        {
+             "type": "Microsoft.Resources/deploymentScripts",
+             "apiVersion": "2020-10-01",
+             "name": "uploadFiles",
+             "location": "[resourceGroup().location]",
+             "kind": "AzurePowerShell",
+             "dependsOn": [
+              "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
+                          ],
+             "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]": {}
+                }
+                         },
+            "properties": {
+                 "azPowerShellVersion": "7.2.4",
+                 "retentionInterval": "P1D",
+                 "primaryScriptUri": "https://raw.githubusercontent.com/CSALabsAutomation/azure-ai-ml-document-processing-lab/master/environments/env1/scripts/uploadFiles.ps1",
+                 "cleanupPreference": "OnSuccess",
+                 "arguments": "[concat('-ResourceGroupName ', resourceGroup().name, ' -StorageAccountName ', parameters('storageAccountName'))]"
+                          }
+        },
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "apiVersion": "2018-11-30",
+            "name": "[parameters('identityName')]",
+            "location": "[resourceGroup().location]" 
+        },
+        {
+          "type": "Microsoft.Authorization/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "name": "[variables('bootstrapRoleAssignmentId')]",
+          "dependsOn": [
+              "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
+          ],
+          "properties": {
+              "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('contributorRoleDefinitionId'))]",
+              "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]",
+              "scope": "[resourceGroup().id]",
+              "principalType": "ServicePrincipal"}
+        }
+       
+    ]
+}
