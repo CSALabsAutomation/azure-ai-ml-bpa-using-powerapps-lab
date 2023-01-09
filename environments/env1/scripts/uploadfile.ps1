@@ -35,7 +35,7 @@ Set-AzStorageBlobContent -File $bacpacFileName -Container "bpa-assets" -Blob 'in
 #############################
 
 $uri = "https://raw.githubusercontent.com/CSALabsAutomation/azure-ai-ml-bpa-using-powerapps-lab/main/environments/env1/Artifacts/TrainingDocuments/invoice2.pdf";
-$bacpacFileName = "invoice1.pdf";
+$bacpacFileName = "invoice2.pdf";
 
 $storageaccountkey = Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName;
 
@@ -47,7 +47,7 @@ Set-AzStorageBlobContent -File $bacpacFileName -Container "bpa-assets" -Blob 'in
 #############################
 
 $uri = "https://raw.githubusercontent.com/CSALabsAutomation/azure-ai-ml-bpa-using-powerapps-lab/main/environments/env1/Artifacts/TrainingDocuments/invoice3.pdf";
-$bacpacFileName = "invoice1.pdf";
+$bacpacFileName = "invoice3.pdf";
 
 $storageaccountkey = Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName;
 
@@ -59,7 +59,7 @@ Set-AzStorageBlobContent -File $bacpacFileName -Container "bpa-assets" -Blob 'in
 #############################
 
 $uri = "https://raw.githubusercontent.com/CSALabsAutomation/azure-ai-ml-bpa-using-powerapps-lab/main/environments/env1/Artifacts/TrainingDocuments/invoice4.pdf";
-$bacpacFileName = "invoice1.pdf";
+$bacpacFileName = "invoice4.pdf";
 
 $storageaccountkey = Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName;
 
@@ -71,7 +71,7 @@ Set-AzStorageBlobContent -File $bacpacFileName -Container "bpa-assets" -Blob 'in
 #############################
 
 $uri = "https://raw.githubusercontent.com/CSALabsAutomation/azure-ai-ml-bpa-using-powerapps-lab/main/environments/env1/Artifacts/TrainingDocuments/invoice5.pdf";
-$bacpacFileName = "invoice1.pdf";
+$bacpacFileName = "invoice5.pdf";
 
 $storageaccountkey = Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName;
 
