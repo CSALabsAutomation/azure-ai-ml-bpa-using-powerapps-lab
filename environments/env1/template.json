@@ -81,34 +81,34 @@
                 "dataResidencyBoundary": "WithinGeopair"
             }
         },
-        // {
-        //     "type": "Microsoft.Search/searchServices",
-        //     "apiVersion": "2021-04-01-preview",
-        //     "name": "[parameters('searchServices_acs_name')]",
-        //     "location": "West US 2",
-        //     "sku": {
-        //         "name": "free"
-        //     },
-        //     "properties": {
-        //         "replicaCount": 1,
-        //         "partitionCount": 1,
-        //         "hostingMode": "Default",
-        //         "publicNetworkAccess": "Enabled",
-        //         "networkRuleSet": {
-        //             "ipRules": [],
-        //             "bypass": "None"
-        //         },
-        //         "encryptionWithCmk": {
-        //             "enforcement": "Unspecified"
-        //         },
-        //         "disableLocalAuth": false,
-        //         "authOptions": {
-        //             "apiKeyOnly": {}
-        //         },
-        //         "disabledDataExfiltrationOptions": [],
-        //         "semanticSearch": "disabled"
-        //     }
-        // },
+         {
+             "type": "Microsoft.Search/searchServices",
+             "apiVersion": "2021-04-01-preview",
+             "name": "[parameters('searchServices_acs_name')]",
+             "location": "West US 2",
+             "sku": {
+                 "name": "free"
+             },
+             "properties": {
+                 "replicaCount": 1,
+                 "partitionCount": 1,
+                 "hostingMode": "Default",
+                 "publicNetworkAccess": "Enabled",
+                 "networkRuleSet": {
+                     "ipRules": [],
+                     "bypass": "None"
+                 },
+                 "encryptionWithCmk": {
+                     "enforcement": "Unspecified"
+                 },
+                 "disableLocalAuth": false,
+                 "authOptions": {
+                     "apiKeyOnly": {}
+                 },
+                 "disabledDataExfiltrationOptions": [],
+                 "semanticSearch": "disabled"
+             }
+         },
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2022-05-01",
